@@ -26,15 +26,15 @@ def input_versionid():
 @task
 @runs_once
 def tar_source():
-    print yellow("Creating source package...")
+    print (yellow("Creating source package..."))
     with lcd(env.project_dev_source):
         local("tar -czf %s.tar.gz ." % (env.project_tar_source + env.project_pack_name))
-    print green("Creating source package success!")
+    print (green("Creating source package success!"))
 
 
 @task
 def put_package():
-    print yellow("Start put package...")
+    print (yellow("Start put package..."))
     with settings(warn_only=True):
         with cd(env.deploy_project_root+env.deploy_release_dir):
             run("mkdir %s" % (env.deploy_version))
@@ -42,28 +42,28 @@ def put_package():
 
     with settings(warn_only=True):
         result = put(env.project_tar_source + env.project_pack_name +".tar.gz",env.deploy_full_path)
-    if result.failed and no("put file failed, Continue[Y/N]?"):
+    if result.failed and not confirm("put file failed, Continue[Y/N]?"):
         abort("Aborting file put task!")
 
     with cd(env.deploy_full_path):
         run("tar -zxvf %s.tar.gz" % (env.project_pack_name))
         run("rm -rf %s.tar.gz" % (env.project_pack_name))
 
-    print green("Put & untar package success!")
+    print (green("Put & untar package success!"))
 
 
 @task
 def make_symlink():
-    print yellow("update current symlink")
+    print (yellow("update current symlink"))
     env.deploy_full_path=env.deploy_project_root + env.deploy_release_dir + "/"+env.deploy_version
     with settings(warn_only=True):
         run("rm -rf %s" % (env.deploy_project_root + env.deploy_current_dir))
         run("ln -s %s %s" % (env.deploy_full_path, env.deploy_project_root + env.deploy_current_dir))
-    print green("make symlink success!")
+    print (green("make symlink success!"))
 
 @task
 def rollback():
-    print yellow("rollback project version")
+    print (yellow("rollback project version"))
     versionid= input_versionid()
     if versionid=='':
         abort("Project version ID error,abort!")
@@ -71,7 +71,7 @@ def rollback():
     env.deploy_full_path=env.deploy_project_root + env.deploy_release_dir + "/"+versionid
     run("rm -f %s" % env.deploy_project_root + env.deploy_current_dir)
     run("ln -s %s %s" % (env.deploy_full_path, env.deploy_project_root + env.deploy_current_dir)) 
-    print green("rollback success!")
+    print (green("rollback success!"))
 
 @task
 def go():
